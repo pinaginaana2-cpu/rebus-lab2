@@ -14,8 +14,9 @@ static int  nlet;
 static int  lead[10];               
 static int  digit[10], used[10];    
 static int  first[10];              
-static long long found, nodes;     
-static int  find_all;               
+static long long found, nodes;  
+ static int  find_all;   
+static long long coef[10];               
 
 static int linear(void) { 
     return op == '+' || op == '-';
@@ -104,21 +105,16 @@ static long long value(int w)
     return v;
 }
 
-static int check_full(void)
-{    
-    if (linear()) {
-        long long s = 0;
-        for (int i = 0; i < nwords; i++) s += wsign(i) * value(i);
-        return s == 0;
-    }
+static int check_mult(void)
+{
     if (op == '*') {
         __int128 p = 1;
         for (int i = 0; i < nwords - 1; i++) p *= value(i);
         return p == value(nwords - 1);
     }
-   
     return value(1) != 0 && (__int128)value(1) * value(2) == value(0);
 }
+
 
 static int record(void)
 {
@@ -127,30 +123,46 @@ static int record(void)
     return !find_all;
 }
 
-static int rec(int k)
+static void weights(void)
+{
+    memset(coef, 0, sizeof coef);
+    if (!linear()) 
+    return;              
+    for (int w = 0; w < nwords; w++) {
+        long long pw = 1;
+        for (int i = (int)strlen(word[w]) - 1; i >= 0; i--) {
+            coef[idx[word[w][i] - 'A']] += wsign(w) * pw;
+            pw *= 10;
+        }
+    }
+}
+
+static int rec(int k, long long sum)
 {
     nodes++;
     if (k == nlet) 
-    return check_full() ? record() : 0;
-    for (int d = lead[k]? 1 : 0; d < 10; d++) {
+    return (linear() ? sum == 0 : check_mult()) ? record() : 0;
+    for (int d = lead[k] ? 1 : 0; d < 10; d++) {    
         if (used[d]) 
         continue;
         digit[k] = d;
         used[d] = 1;
-        int stop = rec(k + 1);
+        int stop = rec(k + 1, sum + coef[k] * d);   
         used[d] = 0;
         if (stop) 
         return 1;
     }
     return 0;
 }
+
 int solve_rebus(const char *in, char *out)
 {
     if (!parse(in)) 
     return 0;
     found = nodes = 0;
     memset(used, 0, sizeof used);
-    rec(0);
+    weights();
+    rec(0, 0);
     if (!found) 
     return 0;
     for (; *in; in++)
