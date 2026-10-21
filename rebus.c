@@ -105,10 +105,7 @@ static long long value(int w)
 }
 
 static int check_full(void)
-{
-    for (int i = 0; i < nlet; i++)
-        if (lead[i] && digit[i] == 0)
-         return 0;     
+{    
     if (linear()) {
         long long s = 0;
         for (int i = 0; i < nwords; i++) s += wsign(i) * value(i);
@@ -135,7 +132,7 @@ static int rec(int k)
     nodes++;
     if (k == nlet) 
     return check_full() ? record() : 0;
-    for (int d = 0; d < 10; d++) {
+    for (int d = lead[k]? 1 : 0; d < 10; d++) {
         if (used[d]) 
         continue;
         digit[k] = d;
