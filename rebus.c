@@ -16,7 +16,9 @@ static int  digit[10], used[10];
 static int  first[10];              
 static long long found, nodes;  
  static int  find_all;   
-static long long coef[10];               
+ static int  ord[10];               
+static int  chk[10];               
+static long long pow10[19];             
 
 static int linear(void) { 
     return op == '+' || op == '-';
@@ -105,8 +107,21 @@ static long long value(int w)
     return v;
 }
 
-static int check_mult(void)
+static long long low(int w, int n)
 {
+    int len = (int)strlen(word[w]);
+    long long v = 0;
+    for (int i = len > n ? len - n : 0; i < len; i++)
+        v = v * 10 + digit[idx[word[w][i] - 'A']];
+    return v;
+}
+static int check_full(void)
+{
+    if (linear()) {
+        long long s = 0;
+        for (int i = 0; i < nwords; i++) s += wsign(i) * value(i);
+        return s == 0;
+    }
     if (op == '*') {
         __int128 p = 1;
         for (int i = 0; i < nwords - 1; i++) p *= value(i);
@@ -123,31 +138,57 @@ static int record(void)
     return !find_all;
 }
 
-static void weights(void)
+static int columns_ok(int c)
 {
-    memset(coef, 0, sizeof coef);
-    if (!linear()) 
-    return;              
-    for (int w = 0; w < nwords; w++) {
-        long long pw = 1;
-        for (int i = (int)strlen(word[w]) - 1; i >= 0; i--) {
-            coef[idx[word[w][i] - 'A']] += wsign(w) * pw;
-            pw *= 10;
+    long long m = pow10[c + 1];
+    if (linear()) {
+        long long s = 0;
+        for (int i = 0; i < nwords; i++) s += wsign(i) * low(i, c + 1);
+        return s % m == 0;
+    }
+    __int128 p = 1;
+    for (int i = 0; i < nwords; i++)
+        if (i != res_idx()) p = p * low(i, c + 1) % m;
+    return p % m == low(res_idx(), c + 1);
+}
+static void build_order(void)
+{
+    int ncols = 0, seen[10] = {0}, n = 0;
+    for (int w = 0; w < nwords; w++)
+        if ((int)strlen(word[w]) > ncols) 
+        ncols = (int)strlen(word[w]);
+    pow10[0] = 1;
+    for (int i = 1; i < 19; i++) 
+    pow10[i] = pow10[i - 1] * 10;
+    for (int k = 0; k < 10; k++) 
+    chk[k] = -1;
+    for (int c = 0; c < ncols; c++) {
+        for (int w = 0; w < nwords; w++) {
+            int len = (int)strlen(word[w]);
+            if (len <= c) 
+            continue;
+            int l = idx[word[w][len - 1 - c] - 'A'];
+            if (!seen[l]) { 
+                seen[l] = 1; ord[n++] = l; 
+            }
         }
+        chk[n - 1] = c;    
     }
 }
-
-static int rec(int k, long long sum)
+static int rec(int k)
 {
     nodes++;
     if (k == nlet) 
-    return (linear() ? sum == 0 : check_mult()) ? record() : 0;
+    return check_full() ? record() : 0;
+    int l = ord[k];
     for (int d = lead[k] ? 1 : 0; d < 10; d++) {    
         if (used[d]) 
         continue;
-        digit[k] = d;
+        digit[l] = d;
         used[d] = 1;
-        int stop = rec(k + 1, sum + coef[k] * d);   
+        int stop = 0;   
+        if (chk[k] < 0 || columns_ok(chk[k]))
+         stop = rec(k + 1);
         used[d] = 0;
         if (stop) 
         return 1;
@@ -161,8 +202,8 @@ int solve_rebus(const char *in, char *out)
     return 0;
     found = nodes = 0;
     memset(used, 0, sizeof used);
-    weights();
-    rec(0, 0);
+    build_order();
+    rec(0);
     if (!found) 
     return 0;
     for (; *in; in++)
