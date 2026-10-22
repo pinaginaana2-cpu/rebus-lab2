@@ -181,7 +181,7 @@ static int rec(int k)
     if (k == nlet) 
     return check_full() ? record() : 0;
     int l = ord[k];
-    for (int d = lead[k] ? 1 : 0; d < 10; d++) {    
+    for (int d = lead[l] ? 1 : 0; d < 10; d++) {    
         if (used[d]) 
         continue;
         digit[l] = d;
