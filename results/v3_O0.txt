@@ -1,9 +1,9 @@
-BE + BE = MOO                                           8 узлов      0.004 мс
-TWO + TWO = FOUR                                       30 узлов      0.018 мс
-SEND + MORE = MONEY                                    77 узлов      0.041 мс
-FORTY + TEN + TEN = SIXTY                            1346 узлов      0.616 мс
-ELEVEN + NINE + FIVE + FIVE = THIRTY                 2468 узлов      1.550 мс
-SATURN + URANUS + NEPTUNE + PLUTO = PLANETS          3821 узлов      1.492 мс
-CAT - DOG = ABC                                         9 узлов      0.000 мс
-AB * AB = CDE                                          36 узлов      0.007 мс
+BE + BE = MOO                                           9 узлов      0.006 мс
+TWO + TWO = FOUR                                       67 узлов      0.047 мс
+SEND + MORE = MONEY                                  1270 узлов      0.673 мс
+FORTY + TEN + TEN = SIXTY                            1352 узлов      0.637 мс
+ELEVEN + NINE + FIVE + FIVE = THIRTY                 1489 узлов      0.993 мс
+SATURN + URANUS + NEPTUNE + PLUTO = PLANETS          3698 узлов      1.504 мс
+CAT - DOG = ABC                                         8 узлов      0.001 мс
+AB * AB = CDE                                          37 узлов      0.016 мс
 AB / C = DE                                             8 узлов      0.001 мс
